@@ -3,7 +3,11 @@ use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, progr
 
 use crate::{error::ApplicationError, state::OrderBook};
 
-impl OrderBook {
+pub struct InitOrder {
+    
+}
+
+impl InitOrder {
     pub fn init_orderbook(
         program_id : &Pubkey,
         accounts : &[AccountInfo<'_>]

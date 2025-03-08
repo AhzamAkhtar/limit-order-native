@@ -1,16 +1,22 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_error::ProgramError, pubkey::Pubkey};
 use spl_associated_token_account::instruction as associated_token_account_instruction;
-use crate::{error::ApplicationError, state::{OrderBook, OrderList, Side}};
+use crate::{error::ApplicationError, state::{OrderBook, OrderList}};
 use spl_token::{instruction as token_instruction, state::Account as TokenAccount};
-impl OrderBook {
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+pub struct CreateOrder {
+    pub side : String,
+    pub amount_token_for_trade : u64,
+    pub price : u64,
+    pub is_expiry : bool,
+}
+
+impl CreateOrder {
     pub fn create_order(
         program_id : &Pubkey,
         accounts : &[AccountInfo<'_>],
-        amount : u64,
-        side : Side,
-        price : u64,
-        is_expiry : bool,
+        args : CreateOrder
     ) -> ProgramResult {
 
         let [
@@ -81,7 +87,7 @@ impl OrderBook {
                   mediator_vault.key,
                    user.key,
                     &[user.key],
-                     amount
+                     args.amount_token_for_trade
                     )?,
             accounts
         )?;
@@ -89,10 +95,10 @@ impl OrderBook {
 
         // update the order_book
         let new_order = OrderList {
-            side,
-            amount_token_for_trade : amount,
-            is_expiry,
-            price,
+            side : args.side,
+            amount_token_for_trade : args.amount_token_for_trade,
+            is_expiry : args.is_expiry,
+            price : args.price,
         };
 
         btc_order_book_data.orders.push(new_order);

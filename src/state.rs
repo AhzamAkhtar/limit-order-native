@@ -33,7 +33,7 @@ pub struct OrderBook {
 
 #[derive(BorshDeserialize,BorshSerialize)]
 pub struct OrderList {
-    pub side : Side,
+    pub side : String,
     pub amount_token_for_trade : u64,
     pub price : u64,
     pub is_expiry : bool,
@@ -41,8 +41,8 @@ pub struct OrderList {
     //pub order_expiry_time : Option<u64>
 }
 
-#[derive(BorshDeserialize,BorshSerialize)]
-pub enum Side {
-    Buy,
-    Sell
-}
+// #[derive(BorshDeserialize,BorshSerialize)]
+// pub enum Side {
+//     Buy,
+//     Sell
+// }

@@ -15,10 +15,17 @@ import * as borsh from 'borsh'
 import { buildCreateOrder, buildInit } from './instruction';
 import { BN, min } from 'bn.js';
 import { randomBytes } from 'node:crypto';
+import { OrderBookData, OrderList } from './data';
 
 const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
 const connection = new Connection("http://localhost:8899","confirmed");
 const program = createKeypairFromFile("./target/deploy/limit_order-keypair.json")
+
+const write_into_file = () => {
+const filePath = "./orderbook/orderbook.txt";
+const orderBook = new OrderBookData(filePath);
+orderBook.addOrder(new OrderList("buy", 1000, 50000));
+}
 
 function createKeypairFromFile(path: string): Keypair {
   return Keypair.fromSecretKey(Buffer.from(JSON.parse(require('node:fs').readFileSync(path, 'utf-8'))));
@@ -103,6 +110,7 @@ describe("Limit_Order" , function (){
   
        const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [order_book_admin_pubkey])
        console.log("sx",sx)
+       
      } catch(e) {
       console.log(e)
      }
@@ -152,6 +160,7 @@ describe("Limit_Order" , function (){
  
       const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
       console.log("sx",sx)
+      write_into_file()
     } catch(e) {
      console.log(e)
     }

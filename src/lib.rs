@@ -1,12 +1,15 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use instructions::{CreateOrder, InitOrder};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, pubkey::Pubkey};
+use solana_program::{
+    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
+};
 use state::OrderBook;
 
 pub mod state;
 pub mod instructions;
 pub mod error;
 
+entrypoint!(process_instruction);
 
 fn process_instruction(
     program_id : &Pubkey,
@@ -14,13 +17,13 @@ fn process_instruction(
     instruction_data : &[u8]
 ) -> ProgramResult {
 
-    let instrcution = LimitOrderInstruction::try_from_slice(instruction_data)?;
+    let instruction = LimitOrderInstruction::try_from_slice(instruction_data)?;
 
-    match instrcution {
+    match instruction {
         LimitOrderInstruction::Init => InitOrder::init_orderbook(program_id, accounts),
         LimitOrderInstruction::CreateOrder(data) => CreateOrder::create_order(program_id, accounts ,data),
     }
-
+    
 }
 
 

@@ -1,22 +1,21 @@
-use borsh::BorshSerialize;
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, program_error::ProgramError, pubkey::Pubkey, rent::Rent, system_instruction, sysvar::Sysvar};
+use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::{account_info::{next_account_info, AccountInfo}, entrypoint::ProgramResult, program::invoke_signed, program_error::ProgramError, pubkey::Pubkey, rent::Rent, system_instruction, sysvar::Sysvar};
 
 use crate::{error::ApplicationError, state::OrderBook};
 
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct InitOrder {
-    
 }
 
 impl InitOrder {
     pub fn init_orderbook(
         program_id : &Pubkey,
-        accounts : &[AccountInfo<'_>]
+        accounts : &[AccountInfo],
     ) -> ProgramResult {
 
         let [
             btc_order_book,
-            order_book_admin_pubkey,
-            payer,
+            fee_payer,
             system_program
         ] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
@@ -24,7 +23,7 @@ impl InitOrder {
 
         let btc_order_book_seeds = &[
             b"btc_order_book",
-            order_book_admin_pubkey.key.as_ref()
+            fee_payer.key.as_ref(),
         ];
 
         let (btc_order_book_key , bump) = Pubkey::find_program_address(btc_order_book_seeds, program_id);
@@ -35,7 +34,7 @@ impl InitOrder {
 
         let order_book = OrderBook {
             orders : Vec::new(),
-            authority : *order_book_admin_pubkey.key,
+            authority : *fee_payer.key,
             bump
         };
 
@@ -46,16 +45,17 @@ impl InitOrder {
 
         invoke_signed(
             &system_instruction::create_account(
-                payer.key,
+                fee_payer.key,
                  btc_order_book.key,
                   rent,
                    size as u64,
-                    program_id
+                    system_program.key
             ),
-            &[payer.clone(),btc_order_book.clone(),order_book_admin_pubkey.clone(),system_program.clone()],
+            &[fee_payer.clone(),btc_order_book.clone(),system_program.clone()],
+            // accounts,
             &[&[
                 b"btc_order_book",
-                order_book_admin_pubkey.key.as_ref(),
+                fee_payer.key.as_ref(),
                 &[bump]
             ]]
         )?;

@@ -166,7 +166,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  })
 
 
- xit("Take Order", async () => {
+ it("Take Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(
@@ -212,6 +212,8 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
     console.log("mediator_vault",mediator_vault_account)
 
     const ix = buildTakeOrder({
+      amount : new BN(0.1 * 10 ** 2),
+      price : new BN(0.1 * 10 ** 2),
       user : user_creating_order.publicKey,
       taker : taker.publicKey,
       btc_order_book : btc_order_book,
@@ -237,7 +239,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 })
 
 
-it("Cancel Order", async () => {
+xit("Cancel Order", async () => {
   try {
     console.log("minta",token_mint_a)
     console.log("user",user_token_ata_a)

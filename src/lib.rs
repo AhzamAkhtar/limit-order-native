@@ -22,7 +22,7 @@ fn process_instruction(
     match instruction {
         LimitOrderInstruction::Init => InitOrder::init_orderbook(program_id, accounts),
         LimitOrderInstruction::CreateOrder(data) => CreateOrder::create_order(program_id, accounts ,data),
-        LimitOrderInstruction::TakeOrder => TakeOrder::take_order(program_id, accounts),
+        LimitOrderInstruction::TakeOrder(data) => TakeOrder::take_order(program_id, accounts,data),
         LimitOrderInstruction::CancelOrder(data) => CancelOrder::cancel_order(program_id, accounts,data)
     }
     
@@ -33,6 +33,6 @@ fn process_instruction(
 enum LimitOrderInstruction {
     Init,
     CreateOrder(CreateOrder),
-    TakeOrder,
+    TakeOrder(TakeOrder),
     CancelOrder(CancelOrder)
 }

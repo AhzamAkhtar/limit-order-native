@@ -177,12 +177,16 @@ const TakeOrderSchema = new Map([
       kind: 'struct',
       fields: [
         ['instruction', 'u8'],
+        ['amount' , 'u64'],
+        ['price', 'u64'] 
       ],
     },
   ],
 ]);
 
 export function buildTakeOrder(props : {
+  amount : BN,
+  price : BN,
   user : PublicKey;
   taker : PublicKey;
   btc_order_book : PublicKey;
@@ -196,7 +200,9 @@ export function buildTakeOrder(props : {
   program_id : PublicKey;
 }) {
   const take_ix = new TakeOrder({
-      instruction : LimitOrderInstruction.TakeOrder
+      instruction : LimitOrderInstruction.TakeOrder,
+      amount : props.amount,
+      price : props.price
   });
 
   return new TransactionInstruction({

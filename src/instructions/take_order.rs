@@ -7,12 +7,16 @@ use spl_token::{instruction as token_instruction, state::Account as TokenAccount
 use crate::{error::ApplicationError, state::OrderBook};
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct TakeOrder {}
+pub struct TakeOrder {
+    amount : u64,
+    price : u64
+}
 
 impl TakeOrder {
     pub fn take_order(
         program_id : &Pubkey,
-        accounts : &[AccountInfo]
+        accounts : &[AccountInfo],
+        args : TakeOrder
     ) -> ProgramResult {
 
         let [
@@ -101,7 +105,7 @@ impl TakeOrder {
                   user_token_account_b.key,
                    taker.key,
                     &[taker.key],
-                     1
+                     args.amount * args.price
                     )?,
                     &[
                         taker.clone(),

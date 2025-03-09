@@ -6,3 +6,6 @@ pub use create_order::*;
 
 pub mod take_order;
 pub use take_order::*;
+
+pub mod cancel_order;
+pub use cancel_order::*;

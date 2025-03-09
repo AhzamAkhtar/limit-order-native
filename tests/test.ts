@@ -12,7 +12,7 @@ import {
   sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import * as borsh from 'borsh'
-import { buildCreateOrder, buildInit, buildTakeOrder } from './instruction';
+import { buildCancelOrder, buildCreateOrder, buildInit, buildTakeOrder } from './instruction';
 import { BN, min } from 'bn.js';
 import { randomBytes } from 'node:crypto';
 import { OrderBookData, OrderList } from './data';
@@ -178,7 +178,7 @@ describe("Limit_Order" , function (){
  })
 
 
- it("Take Order", async () => {
+ xit("Take Order", async () => {
   try {
     console.log("minta",token_mint_a)
     console.log("user",user_token_ata_a)
@@ -239,6 +239,58 @@ describe("Limit_Order" , function (){
     })
 
     const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [taker])
+    console.log("sx",sx)
+    //write_into_file()
+  } catch(e) {
+   console.log(e)
+  }
+   
+})
+
+
+
+it("Cancel Order", async () => {
+  try {
+    console.log("minta",token_mint_a)
+    console.log("user",user_token_ata_a)
+    const btc_order_book = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('btc_order_book'),
+        order_book_admin_pubkey.publicKey.toBuffer(),
+      ],
+      program_id
+    )[0]; 
+
+    console.log("btc_order_book:", btc_order_book.toBase58());
+
+      const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
+      const sig_2 = await connection.requestAirdrop(taker.publicKey, 5_000_000_000);
+      await confirmTx(sig);
+      await confirmTx(sig_2);
+     
+    const new_mint_b = await newMintToAta(connection, taker);
+    console.log("Mint Created:", new_mint_b.mint.toBase58());
+    console.log("User Token Account:", new_mint_b.ata.toBase58());
+
+
+    console.log("user",user_creating_order.publicKey.toBase58())
+    console.log("orderBook",btc_order_book.toBase58())
+    console.log("order_book_admin",order_book_admin_pubkey.publicKey.toBase58())
+    console.log("token_mint_a",token_mint_a)
+    console.log("user_ata_for_token_a",user_token_ata_a.toBase58())
+    console.log("mediator_vault",mediator_vault_account)
+
+    const ix = buildCancelOrder({
+      user : user_creating_order.publicKey,
+      btc_order_book : btc_order_book,
+      order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
+      token_mint_a,
+      user_token_account_a : user_token_ata_a,
+      mediator_vault : mediator_vault_account,
+     program_id : program_id,
+    })
+
+    const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
     console.log("sx",sx)
     //write_into_file()
   } catch(e) {

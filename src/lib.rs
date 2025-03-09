@@ -1,5 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use instructions::{CreateOrder, InitOrder, TakeOrder};
+use instructions::{CancelOrder, CreateOrder, InitOrder, TakeOrder};
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };
@@ -22,7 +22,8 @@ fn process_instruction(
     match instruction {
         LimitOrderInstruction::Init => InitOrder::init_orderbook(program_id, accounts),
         LimitOrderInstruction::CreateOrder(data) => CreateOrder::create_order(program_id, accounts ,data),
-        LimitOrderInstruction::TakeOrder => TakeOrder::take_order(program_id, accounts)
+        LimitOrderInstruction::TakeOrder => TakeOrder::take_order(program_id, accounts),
+        LimitOrderInstruction::CancelOrder => CancelOrder::cancel_order(program_id, accounts)
     }
     
 }
@@ -32,5 +33,6 @@ fn process_instruction(
 enum LimitOrderInstruction {
     Init,
     CreateOrder(CreateOrder),
-    TakeOrder
+    TakeOrder,
+    CancelOrder
 }

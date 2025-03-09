@@ -43,7 +43,7 @@ const confirmTxs = async (signatures: string[]) => {
  function createValuesForInit() {
   
   const order_book_admin_pubkey = Keypair.generate();
-  
+
   const btc_order_book = PublicKey.findProgramAddressSync(
     [
       Buffer.from('btc_order_book'),
@@ -68,17 +68,9 @@ const confirmTxs = async (signatures: string[]) => {
 describe("Limit_Order" , () => {
 
   const values = createValuesForInit()
-  // let airdrop_sig_2 = await connection.requestAirdrop(values.btc_order_book, 1_000_000_000);
-  // console.log(airdrop_sig)
   const program = createKeypairFromFile("./target/deploy/limit_order-keypair.json")
 
   //airdrop
-
-    it("Starting", async () => {
-        console.log("Heloo , im running")
-    })
-
-
     it("Airdrop", async () => {
       await Promise.all([values.order_book_admin_pubkey.publicKey,values.btc_order_book].map(async (k) => {
           return await connection.requestAirdrop(k, 5_000_000_000)
@@ -90,7 +82,6 @@ describe("Limit_Order" , () => {
 
     it("Init", async () => {
      try {
-
        const ix = buildInit({
         btc_order_book : values.btc_order_book,
         fee_payer : values.order_book_admin_pubkey.publicKey,

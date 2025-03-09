@@ -61,18 +61,6 @@ export function buildInit(props : {
                 isSigner : false,
                 isWritable : false
             },
-            {
-              pubkey : TOKEN_PROGRAM_ID,
-              isSigner : false,
-              isWritable : false
-          },
-          {
-            pubkey : ASSOCIATED_TOKEN_PROGRAM_ID,
-            isSigner : false,
-            isWritable : false
-        },
-        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
-
         ],
         programId : props.program_id,
         data : ix.toBuffer()

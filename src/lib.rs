@@ -23,7 +23,7 @@ fn process_instruction(
         LimitOrderInstruction::Init => InitOrder::init_orderbook(program_id, accounts),
         LimitOrderInstruction::CreateOrder(data) => CreateOrder::create_order(program_id, accounts ,data),
         LimitOrderInstruction::TakeOrder => TakeOrder::take_order(program_id, accounts),
-        LimitOrderInstruction::CancelOrder => CancelOrder::cancel_order(program_id, accounts)
+        LimitOrderInstruction::CancelOrder(data) => CancelOrder::cancel_order(program_id, accounts,data)
     }
     
 }
@@ -34,5 +34,5 @@ enum LimitOrderInstruction {
     Init,
     CreateOrder(CreateOrder),
     TakeOrder,
-    CancelOrder
+    CancelOrder(CancelOrder)
 }

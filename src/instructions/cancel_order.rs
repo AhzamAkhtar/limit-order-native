@@ -1,15 +1,19 @@
-use borsh::BorshDeserialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, program::invoke_signed, program_error::ProgramError, pubkey::Pubkey};
 use spl_associated_token_account::instruction as associated_token_account_instruction;
 use spl_token::{instruction as token_instruction, state::Account as TokenAccount};
 use crate::{error::ApplicationError, state::OrderBook};
 
-pub struct CancelOrder {}
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+pub struct CancelOrder {
+    pub amount : u64
+}
 
 impl CancelOrder {
     pub fn cancel_order(
         program_id : &Pubkey,
-        accounts : &[AccountInfo]
+        accounts : &[AccountInfo],
+        args : CancelOrder
     ) -> ProgramResult {
 
         let [
@@ -50,7 +54,7 @@ impl CancelOrder {
                   user_token_account_a.key,
                    btc_order_book.key,
                     &[],
-                     1
+                     args.amount
                     )?,
                     &[
                         user.clone(),

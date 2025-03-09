@@ -273,8 +273,6 @@ export function buildTakeOrder(props : {
 }
 // Cancel
 
-
-
 class CancelOrder extends Assignable {
   toBuffer() {
     return Buffer.from(borsh.serialize(CancelOrderSchema, this));
@@ -288,12 +286,14 @@ const CancelOrderSchema = new Map([
       kind: 'struct',
       fields: [
         ['instruction', 'u8'],
+        ['amount', 'u64']
       ],
     },
   ],
 ]);
 
 export function buildCancelOrder(props : {
+  amount : BN,
   user : PublicKey;
   btc_order_book : PublicKey;
   order_book_admin_pubkey : PublicKey;
@@ -303,7 +303,8 @@ export function buildCancelOrder(props : {
   program_id : PublicKey;
 }) {
   const cancel_ix = new CancelOrder({
-      instruction : LimitOrderInstruction.CancelOrder
+      instruction : LimitOrderInstruction.CancelOrder,
+      amount : props.amount
   });
 
   return new TransactionInstruction({

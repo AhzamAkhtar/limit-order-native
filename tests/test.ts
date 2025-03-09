@@ -12,7 +12,7 @@ import {
   sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import * as borsh from 'borsh'
-import { buildCreateOrder, buildInit } from './instruction';
+import { buildCreateOrder, buildInit, buildTakeOrder } from './instruction';
 import { BN, min } from 'bn.js';
 import { randomBytes } from 'node:crypto';
 import { OrderBookData, OrderList } from './data';
@@ -20,6 +20,10 @@ import { OrderBookData, OrderList } from './data';
 const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
 const connection = new Connection("http://localhost:8899","confirmed");
 const program = createKeypairFromFile("./target/deploy/limit_order-keypair.json")
+
+let token_mint_a;
+let user_token_ata_a;
+let mediator_vault_account;
 
 const write_into_file = () => {
 const filePath = "./orderbook/orderbook.txt";
@@ -61,6 +65,7 @@ const newMintToAta = async (connection, minter: Keypair): Promise<{ mint: Public
 
 const order_book_admin_pubkey = Keypair.generate();
 const user_creating_order = Keypair.generate();
+const taker = Keypair.generate();
 
 function createValuesForInit() {
 
@@ -136,6 +141,9 @@ describe("Limit_Order" , function (){
       const new_mint = await newMintToAta(connection, user_creating_order);
       console.log("Mint Created:", new_mint.mint.toBase58());
       console.log("User Token Account:", new_mint.ata.toBase58());
+
+      token_mint_a = new_mint.mint;
+      user_token_ata_a = new_mint.ata;
   
       const mediator_vault = getAssociatedTokenAddressSync(
         new_mint.mint,
@@ -143,6 +151,8 @@ describe("Limit_Order" , function (){
         true
       );
       console.log("Mediator Vault:", mediator_vault.toBase58());
+
+      mediator_vault_account = mediator_vault
 
       const ix = buildCreateOrder({
       side : "buy",
@@ -166,5 +176,75 @@ describe("Limit_Order" , function (){
     }
      
  })
+
+
+ it("Take Order", async () => {
+  try {
+    console.log("minta",token_mint_a)
+    console.log("user",user_token_ata_a)
+    const btc_order_book = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from('btc_order_book'),
+        order_book_admin_pubkey.publicKey.toBuffer(),
+      ],
+      program_id
+    )[0]; 
+
+    console.log("btc_order_book:", btc_order_book.toBase58());
+
+      const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
+      const sig_2 = await connection.requestAirdrop(taker.publicKey, 5_000_000_000);
+      await confirmTx(sig);
+      await confirmTx(sig_2);
+     
+    const new_mint_b = await newMintToAta(connection, taker);
+    console.log("Mint Created:", new_mint_b.mint.toBase58());
+    console.log("User Token Account:", new_mint_b.ata.toBase58());
+
+    let user_ata_for_token_b = getAssociatedTokenAddressSync(
+      new_mint_b.mint,
+      user_creating_order.publicKey,
+      true
+    );
+
+    let taker_ata_for_token_a = getAssociatedTokenAddressSync(
+      token_mint_a,
+      taker.publicKey,
+      true
+    )
+
+    console.log("user",user_creating_order.publicKey.toBase58())
+    console.log("taker",taker.publicKey)
+    console.log("orderBook",btc_order_book.toBase58())
+    console.log("order_book_admin",order_book_admin_pubkey.publicKey.toBase58())
+    console.log("token_mint_a",token_mint_a)
+    console.log("token_mint_b", new_mint_b)
+    console.log("user_ata_for_token_b",user_ata_for_token_b.toBase58())
+    console.log("taker_ata_for_token_a",taker_ata_for_token_a.toBase58())
+    console.log("taker_ata_for_token_b",new_mint_b.mint.toBase58())
+    console.log("mediator_vault",mediator_vault_account)
+
+    const ix = buildTakeOrder({
+      user : user_creating_order.publicKey,
+      taker : taker.publicKey,
+      btc_order_book : btc_order_book,
+      order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
+      token_mint_a,
+      token_mint_b : new_mint_b.mint,
+      user_token_account_b : user_ata_for_token_b,
+      taker_token_account_a : taker_ata_for_token_a,
+      taker_token_account_b : new_mint_b.ata,
+      mediator_vault : mediator_vault_account,
+     program_id : program_id,
+    })
+
+    const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [taker])
+    console.log("sx",sx)
+    //write_into_file()
+  } catch(e) {
+   console.log(e)
+  }
+   
+})
 
 })

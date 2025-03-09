@@ -1,7 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke, program_error::ProgramError, pubkey::Pubkey};
 use spl_associated_token_account::instruction as associated_token_account_instruction;
-use crate::{error::ApplicationError, state::{OrderBook, OrderList}};
+use crate::{error::ApplicationError, state::{OrderBook, OrderBookData, OrderList}};
 use spl_token::{instruction as token_instruction, state::Account as TokenAccount};
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -105,22 +105,17 @@ impl CreateOrder {
             ]
         )?;
 
-
         //update the order_book
         let new_order = OrderList {
             side : args.side,
             amount : args.amount,
             price : args.price,
-            //is_expiry : args.is_expiry,
         };
 
-        btc_order_book_data.orders.push(new_order);
+        let mut orders = Vec::new();
+        orders.push(new_order);
 
-        msg!("OrderBook before serialization: {:?}", btc_order_book_data);
-
-
-        //order_book.serialize(&mut &mut order_book_account.data.borrow_mut()[..])?;
-        //btc_order_book_data.serialize(&mut btc_order_book.data.borrow_mut().as_mut())?;
+       
 
         Ok(())
     }

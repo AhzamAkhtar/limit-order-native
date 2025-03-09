@@ -35,7 +35,6 @@ impl InitOrder {
         println!("key_sol {:?}",btc_order_book_key);
 
         let order_book = OrderBook {
-            orders : Vec::new(),
             authority : *fee_payer.key,
             bump
         };

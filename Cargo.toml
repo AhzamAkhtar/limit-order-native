@@ -9,6 +9,8 @@ solana-program = "=1.18.17"
 spl-token = { version = "4.0.0", features = [ "no-entrypoint" ] }
 spl-associated-token-account = { version = "3.0.4", features = [ "no-entrypoint" ] }
 thiserror="1.0.0"
+bincode = "1.3.3"
+serde = { version = "1.0.209", features = ["derive"] }
 
 [lib]
 crate-type = ["cdylib", "lib"]

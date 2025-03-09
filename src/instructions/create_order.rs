@@ -1,5 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, program::invoke, program_error::ProgramError, pubkey::Pubkey};
+use solana_program::{account_info::AccountInfo, entrypoint::ProgramResult, msg, program::invoke, program_error::ProgramError, pubkey::Pubkey};
 use spl_associated_token_account::instruction as associated_token_account_instruction;
 use crate::{error::ApplicationError, state::{OrderBook, OrderList}};
 use spl_token::{instruction as token_instruction, state::Account as TokenAccount};
@@ -7,9 +7,9 @@ use spl_token::{instruction as token_instruction, state::Account as TokenAccount
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct CreateOrder {
     pub side : String,
-    pub amount_token_for_trade : u64,
+    pub amount : u64,
     pub price : u64,
-    pub is_expiry : bool,
+    //pub is_expiry : bool,
 }
 
 impl CreateOrder {
@@ -20,9 +20,9 @@ impl CreateOrder {
     ) -> ProgramResult {
 
         let [
+            user,
             btc_order_book,
             order_book_admin_pubkey,
-            user,
             token_mint,
             user_token_account,
             mediator_vault,
@@ -50,20 +50,20 @@ impl CreateOrder {
         // create user token_account for the given_token_account
         if user_token_account.lamports() == 0 {
             invoke(
-                &associated_token_account_instruction::create_associated_token_account_idempotent(
+                &associated_token_account_instruction::create_associated_token_account(
                     user.key, 
                     user.key,
                      token_mint.key,
                       token_program_id.key
                     ),
-                    // &[
-                    //     user.clone(),
-                    //     token_mint.clone(),
-                    //     token_program_id.clone(),
-                    //     system_program.clone(),
-                    //     associated_token_program.clone()
-                    // ]
-                    accounts
+                    &[
+                        user.clone(),
+                        token_mint.clone(),
+                        token_program_id.clone(),
+                        system_program.clone(),
+                        associated_token_program.clone()
+                    ]
+                    
             )?;
         }
 
@@ -72,39 +72,55 @@ impl CreateOrder {
         invoke(
             &associated_token_account_instruction::create_associated_token_account(
                 user.key,
-                 mediator_vault.key,
+                 btc_order_book.key,
                   token_mint.key,
                    token_program_id.key
             ),
-            accounts
+            &[
+                token_mint.clone(),
+                mediator_vault.clone(),
+                btc_order_book.clone(),
+                user.clone(),
+                system_program.clone(),
+                token_program_id.clone(),
+                associated_token_program.clone()
+            ]
         )?;
 
         // transfer users funds to mediator vault
         invoke(
             &token_instruction::transfer(
                 token_program_id.key,
-                 user.key,
+                 user_token_account.key,
                   mediator_vault.key,
                    user.key,
                     &[user.key],
-                     args.amount_token_for_trade
+                     args.amount
                     )?,
-            accounts
+            &[
+                token_program_id.clone(),
+                user_token_account.clone(),
+                mediator_vault.clone(),
+                user.clone()
+            ]
         )?;
 
 
-        // update the order_book
+        //update the order_book
         let new_order = OrderList {
             side : args.side,
-            amount_token_for_trade : args.amount_token_for_trade,
-            is_expiry : args.is_expiry,
+            amount : args.amount,
             price : args.price,
+            //is_expiry : args.is_expiry,
         };
 
         btc_order_book_data.orders.push(new_order);
 
+        msg!("OrderBook before serialization: {:?}", btc_order_book_data);
+
+
         //order_book.serialize(&mut &mut order_book_account.data.borrow_mut()[..])?;
-        btc_order_book_data.serialize(&mut btc_order_book.data.borrow_mut().as_mut())?;
+        //btc_order_book_data.serialize(&mut btc_order_book.data.borrow_mut().as_mut())?;
 
         Ok(())
     }

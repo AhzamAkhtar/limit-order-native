@@ -24,21 +24,21 @@ use solana_program::pubkey::Pubkey;
 
 
 
-#[derive(BorshDeserialize,BorshSerialize)]
+#[derive(BorshDeserialize,BorshSerialize,Debug)]
 pub struct OrderBook {
     pub orders : Vec<OrderList>,
     pub authority : Pubkey,
     pub bump : u8
 }
 
-#[derive(BorshDeserialize,BorshSerialize)]
+#[derive(BorshDeserialize,BorshSerialize,Debug,Clone)]
 pub struct OrderList {
     pub side : String,
-    pub amount_token_for_trade : u64,
+    pub amount : u64,
     pub price : u64,
-    pub is_expiry : bool,
+    //pub is_expiry : bool,
     //pub time_of_order_creation : u64,
-    //pub order_expiry_time : Option<u64>
+    //pub order_expiry_time : Option<u64>don
 }
 
 // #[derive(BorshDeserialize,BorshSerialize)]

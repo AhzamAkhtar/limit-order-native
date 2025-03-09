@@ -53,7 +53,6 @@ const confirmTxs = async (signatures: string[]) => {
 
 const newMintToAta = async (connection, minter: Keypair): Promise<{ mint: PublicKey, ata: PublicKey }> => {
   const mint = await createMint(connection, minter, minter.publicKey, null, 6)
-  // await getAccount(connection, mint, commitment)
   const ata = await createAccount(connection, minter, mint, minter.publicKey)
   const signature = await mintTo(connection, minter, mint, ata, minter, 21e8)
   await confirmTx(signature)
@@ -68,7 +67,6 @@ const user_creating_order = Keypair.generate();
 const taker = Keypair.generate();
 
 function createValuesForInit() {
-
   const btc_order_book = PublicKey.findProgramAddressSync(
     [
       Buffer.from('btc_order_book'),
@@ -83,25 +81,17 @@ function createValuesForInit() {
   return {
     btc_order_book
   }
-  
 }
 
-
-
-
-describe("Limit_Order" , function (){
-
+describe("Test_Limit_Order_Solana_Native_Program" , function (){
 
   const values = createValuesForInit()
-  let values_for_create;
- 
-  //airdrop
+
     it("Airdrop", async () => {
       await Promise.all([order_book_admin_pubkey.publicKey,values.btc_order_book , user_creating_order.publicKey].map(async (k) => {
           return await connection.requestAirdrop(k, 5_000_000_000)
       })).then(confirmTxs);
-      let ddd = await connection.getBalance(order_book_admin_pubkey.publicKey, "confirmed")
-      console.log("ddd",ddd)
+      console.log("✅ Airdrop Done")
   });
 
 
@@ -112,19 +102,17 @@ describe("Limit_Order" , function (){
         fee_payer : order_book_admin_pubkey.publicKey,
         program_id : program_id,
        })
-  
-       const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [order_book_admin_pubkey])
-       console.log("sx",sx)
-       
-     } catch(e) {
-      console.log(e)
+       const init_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [order_book_admin_pubkey])
+       console.log("✅ init_transaction_signature",init_transaction_signature) 
+     } catch(error) {
+      console.log("Error from init_ins",error)
      }
-      
   })
 
 
   it("Create Order", async () => {
     try {
+
       const btc_order_book = PublicKey.findProgramAddressSync(
         [
           Buffer.from('btc_order_book'),
@@ -133,32 +121,30 @@ describe("Limit_Order" , function (){
         program_id
       )[0]; 
   
-      console.log("btc_order_book:", btc_order_book.toBase58());
-  
-        const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
-        await confirmTx(sig);
-       
+      const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
+      await confirmTx(sig);
+      
       const new_mint = await newMintToAta(connection, user_creating_order);
-      console.log("Mint Created:", new_mint.mint.toBase58());
-      console.log("User Token Account:", new_mint.ata.toBase58());
-
-      token_mint_a = new_mint.mint;
-      user_token_ata_a = new_mint.ata;
-  
+    
       const mediator_vault = getAssociatedTokenAddressSync(
         new_mint.mint,
         btc_order_book,
         true
       );
+
+      console.log("btc_order_book:", btc_order_book.toBase58());
+      console.log("Mint Created:", new_mint.mint.toBase58());
+      console.log("User Token Account:", new_mint.ata.toBase58());
       console.log("Mediator Vault:", mediator_vault.toBase58());
 
+      token_mint_a = new_mint.mint;
+      user_token_ata_a = new_mint.ata;
       mediator_vault_account = mediator_vault
 
       const ix = buildCreateOrder({
       side : "buy",
       amount: new BN(1 * 10 ** 6),
       price: new BN(1 * 10 ** 6),
-      //is_expiry : Boolean(false),
        user : user_creating_order.publicKey,
        btc_order_book : btc_order_book,
        order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
@@ -168,20 +154,21 @@ describe("Limit_Order" , function (){
        program_id : program_id,
       })
  
-      const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
-      console.log("sx",sx)
+      const create_order_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
+      console.log("✅ create_order_transaction_signature", create_order_transaction_signature)
+
       write_into_file()
-    } catch(e) {
-     console.log(e)
+
+    } catch(error) {
+     console.log("Error from create_order_ins",error)
     }
      
  })
 
 
- xit("Take Order", async () => {
+ it("Take Order", async () => {
   try {
-    console.log("minta",token_mint_a)
-    console.log("user",user_token_ata_a)
+
     const btc_order_book = PublicKey.findProgramAddressSync(
       [
         Buffer.from('btc_order_book'),
@@ -189,8 +176,6 @@ describe("Limit_Order" , function (){
       ],
       program_id
     )[0]; 
-
-    console.log("btc_order_book:", btc_order_book.toBase58());
 
       const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
       const sig_2 = await connection.requestAirdrop(taker.publicKey, 5_000_000_000);
@@ -213,6 +198,8 @@ describe("Limit_Order" , function (){
       true
     )
 
+    console.log("minta",token_mint_a)
+    console.log("user",user_token_ata_a)
     console.log("user",user_creating_order.publicKey.toBase58())
     console.log("taker",taker.publicKey)
     console.log("orderBook",btc_order_book.toBase58())
@@ -238,18 +225,19 @@ describe("Limit_Order" , function (){
      program_id : program_id,
     })
 
-    const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [taker])
-    console.log("sx",sx)
+    const take_order_transaction_instruction = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [taker])
+    console.log("✅ take_order_transaction_instruction",take_order_transaction_instruction)
+
     //write_into_file()
-  } catch(e) {
-   console.log(e)
+
+  } catch(error) {
+   console.log("Error form take_order ins", error)
   }
    
 })
 
 
-
-it("Cancel Order", async () => {
+xit("Cancel Order", async () => {
   try {
     console.log("minta",token_mint_a)
     console.log("user",user_token_ata_a)
@@ -260,8 +248,6 @@ it("Cancel Order", async () => {
       ],
       program_id
     )[0]; 
-
-    console.log("btc_order_book:", btc_order_book.toBase58());
 
       const sig = await connection.requestAirdrop(user_creating_order.publicKey, 5_000_000_000);
       const sig_2 = await connection.requestAirdrop(taker.publicKey, 5_000_000_000);
@@ -290,11 +276,13 @@ it("Cancel Order", async () => {
      program_id : program_id,
     })
 
-    const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
-    console.log("sx",sx)
+    const cancel_order_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
+    console.log("✅ cancel_order_transaction_signature", cancel_order_transaction_signature)
+
     //write_into_file()
-  } catch(e) {
-   console.log(e)
+
+  } catch(error) {
+   console.log(error)
   }
    
 })

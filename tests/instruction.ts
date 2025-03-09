@@ -1,5 +1,5 @@
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID } from '@solana/spl-token';
-import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js';
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from '@solana/web3.js';
 import BN from 'bn.js';
 import * as borsh from 'borsh';
 
@@ -61,6 +61,17 @@ export function buildInit(props : {
                 isSigner : false,
                 isWritable : false
             },
+            {
+              pubkey : TOKEN_PROGRAM_ID,
+              isSigner : false,
+              isWritable : false
+          },
+          {
+            pubkey : ASSOCIATED_TOKEN_PROGRAM_ID,
+            isSigner : false,
+            isWritable : false
+        },
+        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false },
 
         ],
         programId : props.program_id,

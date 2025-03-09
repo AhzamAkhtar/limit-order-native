@@ -16,6 +16,7 @@ import { buildInit } from './instruction';
 import { BN } from 'bn.js';
 import { randomBytes } from 'node:crypto';
 
+const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
 const connection = new Connection("http://localhost:8899","confirmed");
 
 function createKeypairFromFile(path: string): Keypair {
@@ -40,7 +41,6 @@ const confirmTxs = async (signatures: string[]) => {
 
 
  function createValuesForInit() {
-  const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
   
   const order_book_admin_pubkey = Keypair.generate();
   
@@ -94,11 +94,11 @@ describe("Limit_Order" , () => {
        const ix = buildInit({
         btc_order_book : values.btc_order_book,
         fee_payer : values.order_book_admin_pubkey.publicKey,
-        program_id : program.publicKey,
+        program_id : program_id,
        })
   
        const sx = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [values.order_book_admin_pubkey])
-       console.log(sx)
+       console.log("sx",sx)
      } catch(e) {
       console.log(e)
      }

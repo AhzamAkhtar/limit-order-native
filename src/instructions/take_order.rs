@@ -29,7 +29,7 @@ impl TakeOrder {
         let [
             user, // user create the order
             taker, // user that accept a particular order
-            btc_order_book, // manager
+            btc_order_book, // manager config_account
             order_book_admin_pubkey, // manager auth
             token_mint_a, // token_mint that user want to trade for
             token_mint_b, // token_mint that taker want to give in exchange

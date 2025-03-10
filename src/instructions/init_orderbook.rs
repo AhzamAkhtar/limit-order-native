@@ -24,8 +24,8 @@ impl InitOrder {
         ) -> ProgramResult {
 
         let [
-            btc_order_book,
-            fee_payer,
+            btc_order_book, // manager config_account
+            fee_payer, // fee_payer for init process
             system_program
             ] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
@@ -48,6 +48,7 @@ impl InitOrder {
         let size = borsh::to_vec::<OrderBook>(&order_book)?.len();
         let rent = (Rent::get()?).minimum_balance(size);
 
+        // transfer lamports for paying the rent
         invoke(
             &system_instruction::transfer(fee_payer.key, btc_order_book.key, rent),
             &[
@@ -57,12 +58,14 @@ impl InitOrder {
             ],
         )?;
 
+        //allocate space for the account
         invoke_signed(
             &system_instruction::allocate(btc_order_book.key, size as u64),
             &[btc_order_book.clone(), system_program.clone()],
             &[&[b"btc_order_book", fee_payer.key.as_ref(), &[bump]]],
         )?;
 
+        // assign the pda to program
         invoke_signed(
             &system_instruction::assign(btc_order_book.key, program_id),
             &[btc_order_book.clone(), system_program.clone()],

@@ -27,7 +27,7 @@ impl CreateOrder {
 
         let [
             user, // user create the order
-            btc_order_book, //manager
+            btc_order_book, //manager config_account
             order_book_admin_pubkey, // manager auth
             token_mint, // token_mint that user want to trade for
             user_token_account, // user token_account for token_mint
@@ -93,7 +93,7 @@ impl CreateOrder {
             ],
         )?;
 
-        // transfer users funds to mediator vault
+        // transfer users funds to mediator_vault
         invoke(
             &token_instruction::transfer(
                 token_program_id.key,

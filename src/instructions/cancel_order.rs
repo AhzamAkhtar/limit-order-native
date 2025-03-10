@@ -22,7 +22,7 @@ impl CancelOrder {
         
         let [
             user, // user that create the order
-            btc_order_book, //manager
+            btc_order_book, //manager config_account
             order_book_admin_pubkey, // manager auth
             token_mint_a, // token_mint that user want to trade for
             user_token_account_a, // user token_account for mint_a

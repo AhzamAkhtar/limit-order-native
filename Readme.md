@@ -14,7 +14,7 @@ This is a Solana program written in native Rust that allows users to create and 
 ### 1. Clone the repository
 
 ```sh
-git clone https://github.com/AhzamAkhtar/limit-order-native
+git clone https://github.com/AhzamAkhtar/solana-limit-order-native
 ```
 
 ### 2. Install dependencies to tests

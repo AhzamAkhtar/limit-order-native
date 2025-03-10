@@ -29,11 +29,24 @@ let token_mint_a;
 let user_token_ata_a;
 let mediator_vault_account;
 
-const write_into_file = (order_id:number , side:string , amount:number , price:number) => {
-const filePath = "./orderbook/orderbook.txt";
-const orderBook = new OrderBookData(filePath);
-orderBook.addOrder(new OrderList(order_id,side, amount, price));
+function write_into_file(order_id:number , side:string , amount:number , price:number) {
+  const filePath = "./orderbook/orderbook.txt";
+  const orderBook = new OrderBookData(filePath);
+  orderBook.addOrder(new OrderList(order_id,side, amount, price));
 }
+
+function cancel_order(order_id:number) {
+  const filePath = "./orderbook/orderbook.txt";
+  const orderBook = new OrderBookData(filePath);
+  orderBook.removeOrderById(order_id);
+}
+
+function fill_partial_order(order_id:number,trade_amount:number) {
+  const filePath = "./orderbook/orderbook.txt";
+  const orderBook = new OrderBookData(filePath);
+  orderBook.fill_partial_order(order_id,trade_amount);
+}
+  
 
 function createKeypairFromFile(path: string): Keypair {
   return Keypair.fromSecretKey(Buffer.from(JSON.parse(require('node:fs').readFileSync(path, 'utf-8'))));
@@ -143,8 +156,8 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       const ix = buildCreateOrder({
       id : new BN(random_oder_id),
       side : "Sell",
-      amount: new BN(1 * 10 ** 6),
-      price: new BN(1 * 10 ** 6),
+      amount: new BN(100 * 10 ** 6),
+      price: new BN(60 * 10 ** 6),
        user : user_creating_order.publicKey,
        btc_order_book : btc_order_book,
        order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
@@ -157,7 +170,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       const create_order_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
       console.log("✅ create_order_transaction_signature", create_order_transaction_signature)
 
-      write_into_file(random_oder_id,"Sell",1,1)
+      write_into_file(random_oder_id,"Sell",100,60)
 
     } catch(error) {
      console.log("Error from create_order_ins",error)
@@ -216,7 +229,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
     const take_order_transaction_instruction = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [taker])
     console.log("✅ take_order_transaction_instruction",take_order_transaction_instruction)
 
-    //write_into_file()
+    fill_partial_order(1,10)
 
   } catch(error) {
    console.log("Error form take_order ins", error)
@@ -256,7 +269,7 @@ xit("Cancel Order", async () => {
     const cancel_order_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
     console.log("✅ cancel_order_transaction_signature", cancel_order_transaction_signature)
 
-    //write_into_file()
+    cancel_order(1)
 
   } catch(error) {
    console.log(error)

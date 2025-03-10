@@ -51,9 +51,18 @@ export class OrderBookData {
         this.orders = this.orders.filter(order => order.order_id !== orderId);
         if (this.orders.length < initialLength) {
             this.saveToFile();
-            console.log(`Order with ID ${orderId} removed.`);
         } else {
-            console.log(`Order with ID ${orderId} not found.`);
+            console.log(`Order not found in the orderbook`);
+        }
+    }
+
+    public fill_partial_order(orderId : number, trade_amount : number) {
+        const order = this.orders.find(order => order.order_id == orderId)
+        if(order) {
+            order.amount = order.amount - trade_amount
+            this.saveToFile()
+        } else {
+            console.log("Order not found in the orderbook")
         }
     }
 

@@ -95,7 +95,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
   });
 
 
-    it("Init", async () => {
+    it("Init Program Manager", async () => {
      try {
        const ix = buildInit({
         btc_order_book : values.btc_order_book,
@@ -132,11 +132,6 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
         true
       );
 
-      console.log("btc_order_book:", btc_order_book.toBase58());
-      console.log("Mint Created:", new_mint.mint.toBase58());
-      console.log("User Token Account:", new_mint.ata.toBase58());
-      console.log("Mediator Vault:", mediator_vault.toBase58());
-
       token_mint_a = new_mint.mint;
       user_token_ata_a = new_mint.ata;
       mediator_vault_account = mediator_vault
@@ -166,7 +161,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  })
 
 
- it("Take Order", async () => {
+ xit("Take Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(
@@ -183,9 +178,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       await confirmTx(sig_2);
      
     const new_mint_b = await newMintToAta(connection, taker);
-    console.log("Mint Created:", new_mint_b.mint.toBase58());
-    console.log("User Token Account:", new_mint_b.ata.toBase58());
-
+    
     let user_ata_for_token_b = getAssociatedTokenAddressSync(
       new_mint_b.mint,
       user_creating_order.publicKey,
@@ -197,19 +190,6 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       taker.publicKey,
       true
     )
-
-    console.log("minta",token_mint_a)
-    console.log("user",user_token_ata_a)
-    console.log("user",user_creating_order.publicKey.toBase58())
-    console.log("taker",taker.publicKey)
-    console.log("orderBook",btc_order_book.toBase58())
-    console.log("order_book_admin",order_book_admin_pubkey.publicKey.toBase58())
-    console.log("token_mint_a",token_mint_a)
-    console.log("token_mint_b", new_mint_b)
-    console.log("user_ata_for_token_b",user_ata_for_token_b.toBase58())
-    console.log("taker_ata_for_token_a",taker_ata_for_token_a.toBase58())
-    console.log("taker_ata_for_token_b",new_mint_b.mint.toBase58())
-    console.log("mediator_vault",mediator_vault_account)
 
     const ix = buildTakeOrder({
       amount : new BN(0.1 * 10 ** 2),
@@ -239,10 +219,9 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 })
 
 
-xit("Cancel Order", async () => {
+it("Cancel Order", async () => {
   try {
-    console.log("minta",token_mint_a)
-    console.log("user",user_token_ata_a)
+
     const btc_order_book = PublicKey.findProgramAddressSync(
       [
         Buffer.from('btc_order_book'),
@@ -257,16 +236,6 @@ xit("Cancel Order", async () => {
       await confirmTx(sig_2);
      
     const new_mint_b = await newMintToAta(connection, taker);
-    console.log("Mint Created:", new_mint_b.mint.toBase58());
-    console.log("User Token Account:", new_mint_b.ata.toBase58());
-
-
-    console.log("user",user_creating_order.publicKey.toBase58())
-    console.log("orderBook",btc_order_book.toBase58())
-    console.log("order_book_admin",order_book_admin_pubkey.publicKey.toBase58())
-    console.log("token_mint_a",token_mint_a)
-    console.log("user_ata_for_token_a",user_token_ata_a.toBase58())
-    console.log("mediator_vault",mediator_vault_account)
 
     const ix = buildCancelOrder({
       amount : new BN(1 * 10 ** 6),

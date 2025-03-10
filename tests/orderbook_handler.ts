@@ -1,7 +1,9 @@
+import BN from "bn.js";
 import * as fs from "fs";
 
 export class OrderList {
     constructor(
+        public order_id : number,
         public side: string,
         public amount: number,
         public price: number
@@ -41,6 +43,18 @@ export class OrderBookData {
     public addOrder(order: OrderList) {
         this.orders.push(order);
         this.saveToFile();
+    }
+
+    // Remove an order by ID
+    public removeOrderById(orderId: number) {
+        const initialLength = this.orders.length;
+        this.orders = this.orders.filter(order => order.order_id !== orderId);
+        if (this.orders.length < initialLength) {
+            this.saveToFile();
+            console.log(`Order with ID ${orderId} removed.`);
+        } else {
+            console.log(`Order with ID ${orderId} not found.`);
+        }
     }
 
     // Get all orders

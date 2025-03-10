@@ -17,6 +17,7 @@ class CancelOrder extends Assignable {
         kind: 'struct',
         fields: [
           ['instruction', 'u8'],
+          ['id' , 'u64'],
           ['amount', 'u64']
         ],
       },
@@ -24,6 +25,7 @@ class CancelOrder extends Assignable {
   ]);
   
   export function buildCancelOrder(props : {
+    id : BN,
     amount : BN,
     user : PublicKey;
     btc_order_book : PublicKey;
@@ -35,6 +37,7 @@ class CancelOrder extends Assignable {
   }) {
     const cancel_ix = new CancelOrder({
         instruction : LimitOrderInstruction.CancelOrder,
+        id : props.id,
         amount : props.amount
     });
   

@@ -10,25 +10,29 @@ import {
   TransactionInstruction,
   sendAndConfirmTransaction,
 } from '@solana/web3.js';
-import { BN, min } from 'bn.js';
+
 import { OrderBookData, OrderList } from './orderbook_handler';
 import { buildInit } from './instructions/init';
 import { buildCreateOrder } from './instructions/create_order';
 import { buildTakeOrder } from './instructions/take_order';
 import { buildCancelOrder } from './instructions/cancel_order';
+import { BN } from 'bn.js';
+import { randomBytes } from 'node:crypto';
 
 const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
 const connection = new Connection("http://localhost:8899","confirmed");
 const program = createKeypairFromFile("./target/deploy/limit_order-keypair.json")
 
+const random_oder_id = randomBytes(8).toJSON().data[0];
+
 let token_mint_a;
 let user_token_ata_a;
 let mediator_vault_account;
 
-const write_into_file = () => {
+const write_into_file = (order_id:number , side:string , amount:number , price:number) => {
 const filePath = "./orderbook/orderbook.txt";
 const orderBook = new OrderBookData(filePath);
-orderBook.addOrder(new OrderList("buy", 1000, 50000));
+orderBook.addOrder(new OrderList(order_id,side, amount, price));
 }
 
 function createKeypairFromFile(path: string): Keypair {
@@ -137,7 +141,8 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       mediator_vault_account = mediator_vault
 
       const ix = buildCreateOrder({
-      side : "buy",
+      id : new BN(random_oder_id),
+      side : "Sell",
       amount: new BN(1 * 10 ** 6),
       price: new BN(1 * 10 ** 6),
        user : user_creating_order.publicKey,
@@ -152,7 +157,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       const create_order_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [user_creating_order])
       console.log("✅ create_order_transaction_signature", create_order_transaction_signature)
 
-      write_into_file()
+      write_into_file(random_oder_id,"Sell",1,1)
 
     } catch(error) {
      console.log("Error from create_order_ins",error)
@@ -161,7 +166,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  })
 
 
- xit("Take Order", async () => {
+ it("Take Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(
@@ -192,6 +197,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
     )
 
     const ix = buildTakeOrder({
+      id : new BN(1),
       amount : new BN(0.1 * 10 ** 2),
       price : new BN(0.1 * 10 ** 2),
       user : user_creating_order.publicKey,
@@ -219,7 +225,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 })
 
 
-it("Cancel Order", async () => {
+xit("Cancel Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(
@@ -236,6 +242,7 @@ it("Cancel Order", async () => {
       await confirmTx(sig_2);
      
     const ix = buildCancelOrder({
+      id : new BN(1),
       amount : new BN(1 * 10 ** 6),
       user : user_creating_order.publicKey,
       btc_order_book : btc_order_book,

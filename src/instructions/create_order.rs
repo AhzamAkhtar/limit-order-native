@@ -12,15 +12,16 @@ use spl_token::{instruction as token_instruction, state::Account as TokenAccount
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct CreateOrder {
-    pub side: String,
-    pub amount: u64,
-    pub price: u64,
+    id : u64,
+    side: String,
+    amount: u64,
+    price: u64,
 }
 
 impl CreateOrder {
     pub fn create_order(
         program_id: &Pubkey,
-        accounts: &[AccountInfo<'_>],
+        accounts: &[AccountInfo],
         args: CreateOrder,
     ) -> ProgramResult {
         let [user, btc_order_book, order_book_admin_pubkey, token_mint, user_token_account, mediator_vault, token_program_id, associated_token_program, system_program] =

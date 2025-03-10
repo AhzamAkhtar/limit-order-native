@@ -17,6 +17,7 @@ class TakeOrder extends Assignable {
         kind: 'struct',
         fields: [
           ['instruction', 'u8'],
+          ['id' , 'u64'],
           ['amount' , 'u64'],
           ['price', 'u64'] 
         ],
@@ -25,6 +26,7 @@ class TakeOrder extends Assignable {
   ]);
   
   export function buildTakeOrder(props : {
+    id : BN,
     amount : BN,
     price : BN,
     user : PublicKey;
@@ -41,6 +43,7 @@ class TakeOrder extends Assignable {
   }) {
     const take_ix = new TakeOrder({
         instruction : LimitOrderInstruction.TakeOrder,
+        id : props.id,
         amount : props.amount,
         price : props.price
     });

@@ -9,7 +9,8 @@ use spl_token::{instruction as token_instruction, state::Account as TokenAccount
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct CancelOrder {
-    pub amount: u64,
+    id : u64,
+    amount: u64,
 }
 
 impl CancelOrder {

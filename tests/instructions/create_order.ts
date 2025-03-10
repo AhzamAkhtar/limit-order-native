@@ -17,6 +17,7 @@ class CreateOrder extends Assignable {
         kind: 'struct',
         fields: [
           ['instruction', 'u8'],
+          ['id', 'u64'],
           ['side', 'String'],
           ['amount','u64'],
           ['price', 'u64'],
@@ -26,10 +27,10 @@ class CreateOrder extends Assignable {
   ]);
   
   export function buildCreateOrder(props : {
+    id : BN,
     side : string,
     amount : BN,
     price : BN,
-    //is_expiry : Boolean,
     user : PublicKey;
     btc_order_book : PublicKey;
     order_book_admin_pubkey : PublicKey;
@@ -40,10 +41,10 @@ class CreateOrder extends Assignable {
   }) {
     const create_ix = new CreateOrder({
         instruction : LimitOrderInstruction.CreateOrder,
+        id : props.id,
         side : props.side,
         amount : new BN(props.amount),
         price : new BN(props.price),
-        //is_expiry : Boolean(props.is_expiry)
     });
   
     return new TransactionInstruction({

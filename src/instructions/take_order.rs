@@ -14,6 +14,7 @@ use spl_token::{instruction as token_instruction, state::Account as TokenAccount
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
 pub struct TakeOrder {
+    id : u64,
     amount: u64,
     price: u64,
 }

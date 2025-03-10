@@ -5,7 +5,7 @@ This is a Solana program written in native Rust that allows users to create and 
 ## Features
 
 1. **Init**: Initializes the admin config account, which manages all vaults storing user funds.
-2. **Create Order**: Users can create a limit order by specifying the token amount and price. The funds are transferred to a vault, and the order is stored off-chain.
+2. **Create Order**: Users can create a limit order by specifying the token amount and price. The funds are transferred to a vault, and the order is stored off-chain in the orderbook.
 3. **Take Order**: Another user accepts an existing order, triggering a token exchange. The taker receives tokens from the vault and sends funds to the order creator. The order book is updated accordingly.
 4. **Cancel Order**: The order creator can cancel their order, retrieving their funds and removing the order from the order book.
 
@@ -38,15 +38,17 @@ solana program deploy ./target/deploy/limit_order.so
 solana-test-validator
 ```
 
-### 5. Run tests
+### 5. Run tests on localhost
 
 ```sh
 npm run test
 ```
 ## Tests Output
 
+### Test scenario-1
 ![Test1 Image](./assets/test1.png)
 
+### Test scenario-2
 ![Test2 Image](./assets/test2.png)
 
 ## Contributing

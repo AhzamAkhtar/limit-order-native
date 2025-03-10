@@ -4,10 +4,10 @@ use solana_program::{account_info::{next_account_info, AccountInfo}, entrypoint:
 use crate::{error::ApplicationError, state::OrderBook};
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct InitOrder {
-}
+pub struct InitOrder {}
 
 impl InitOrder {
+
     pub fn init_orderbook(
         program_id : &Pubkey,
         accounts : &[AccountInfo],
@@ -32,8 +32,6 @@ impl InitOrder {
            return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
-        println!("key_sol {:?}",btc_order_book_key);
-
         let order_book = OrderBook {
             authority : *fee_payer.key,
             bump
@@ -41,19 +39,16 @@ impl InitOrder {
 
         let size = borsh::to_vec::<OrderBook>(&order_book)?.len();
         let rent = (Rent::get()?).minimum_balance(size);
-
-        // create account
-
+    
         invoke(
             &system_instruction::transfer(
-                fee_payer.key,      // From
-                btc_order_book.key, // To (PDA)
-                rent,               // Amount (rent exemption)
+                fee_payer.key,     
+                btc_order_book.key, 
+                rent,               
             ),
             &[fee_payer.clone(), btc_order_book.clone(), system_program.clone()],
         )?;
         
-        // Then, allocate space for the account
         invoke_signed(
             &system_instruction::allocate(
                 btc_order_book.key,
@@ -67,7 +62,6 @@ impl InitOrder {
             ]],
         )?;
         
-        // Finally, assign the PDA to your program
         invoke_signed(
             &system_instruction::assign(
                 btc_order_book.key,
@@ -82,7 +76,6 @@ impl InitOrder {
         )?;
 
         //write data into btc_order_book account
-        //msg!("Writing data to PDA...");
         order_book.serialize(&mut *btc_order_book.data.borrow_mut())?;
 
         Ok(())

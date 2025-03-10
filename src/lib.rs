@@ -3,7 +3,6 @@ use instructions::{CancelOrder, CreateOrder, InitOrder, TakeOrder};
 use solana_program::{
     account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };
-use state::OrderBook;
 
 pub mod state;
 pub mod instructions;

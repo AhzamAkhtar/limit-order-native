@@ -1,5 +1,4 @@
 import { Buffer } from 'node:buffer';
-// import { PROGRAM_ID as TOKEN_METADATA_PROGRAM_ID } from '@metaplex-foundation/mpl-token-metadata';
 import { TOKEN_PROGRAM_ID , createMint, createAccount , mintTo, getAssociatedTokenAddressSync } from '@solana/spl-token';
 import {
   Connection,
@@ -11,11 +10,12 @@ import {
   TransactionInstruction,
   sendAndConfirmTransaction,
 } from '@solana/web3.js';
-import * as borsh from 'borsh'
-import { buildCancelOrder, buildCreateOrder, buildInit, buildTakeOrder } from './instruction';
 import { BN, min } from 'bn.js';
-import { randomBytes } from 'node:crypto';
-import { OrderBookData, OrderList } from './data';
+import { OrderBookData, OrderList } from './orderbook_handler';
+import { buildInit } from './instructions/init';
+import { buildCreateOrder } from './instructions/create_order';
+import { buildTakeOrder } from './instructions/take_order';
+import { buildCancelOrder } from './instructions/cancel_order';
 
 const program_id = new PublicKey("J7AanLfH5JaEADzw4gc7tE8Pxz8mwSU514tjGLNrhdsC");
 const connection = new Connection("http://localhost:8899","confirmed");
@@ -235,8 +235,6 @@ it("Cancel Order", async () => {
       await confirmTx(sig);
       await confirmTx(sig_2);
      
-    const new_mint_b = await newMintToAta(connection, taker);
-
     const ix = buildCancelOrder({
       amount : new BN(1 * 10 ** 6),
       user : user_creating_order.publicKey,

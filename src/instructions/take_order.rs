@@ -37,7 +37,7 @@ impl TakeOrder {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        let mut btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
+        let btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
 
         let btc_order_book_seed = &[
             b"btc_order_book",
@@ -51,7 +51,7 @@ impl TakeOrder {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
-        // create taker token_account for mint_a
+        // create taker token_account for mint_a if needed
         if taker_token_account_a.lamports() == 0 {
             invoke(
                 &associated_token_account_instruction::create_associated_token_account
@@ -73,8 +73,7 @@ impl TakeOrder {
         }
 
 
-        // create user/maker token_account for mint_b
-
+        // create user token_account for mint_b if needed
         if user_token_account_b.lamports() == 0  {
             invoke(
                 &associated_token_account_instruction::create_associated_token_account
@@ -96,7 +95,7 @@ impl TakeOrder {
             )?;
         }
 
-        //transfer token from taker to maker
+        //transfer token from taker to user
 
         invoke(
             &token_instruction::transfer(
@@ -140,8 +139,6 @@ impl TakeOrder {
                         btc_order_book_seed
                     ]
         )?;
-
-        //close the vault
 
         Ok(())
     }

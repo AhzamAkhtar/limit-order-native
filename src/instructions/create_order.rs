@@ -9,7 +9,6 @@ pub struct CreateOrder {
     pub side : String,
     pub amount : u64,
     pub price : u64,
-    //pub is_expiry : bool,
 }
 
 impl CreateOrder {
@@ -33,7 +32,7 @@ impl CreateOrder {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        let mut btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
+        let btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
 
         let btc_order_book_seed = &[
             b"btc_order_book",
@@ -47,7 +46,7 @@ impl CreateOrder {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
-        // create user token_account for the given_token_account
+        // create user token_account for the given_token_account if needed
         if user_token_account.lamports() == 0 {
             invoke(
                 &associated_token_account_instruction::create_associated_token_account(
@@ -67,8 +66,7 @@ impl CreateOrder {
             )?;
         }
 
-
-        //create mediator vault for holding the tokens
+        //create mediator-vault token-account for holding the tokens
         invoke(
             &associated_token_account_instruction::create_associated_token_account(
                 user.key,
@@ -104,16 +102,6 @@ impl CreateOrder {
                 user.clone()
             ]
         )?;
-
-        //update the order_book
-        let new_order = OrderList {
-            side : args.side,
-            amount : args.amount,
-            price : args.price,
-        };
-
-        // let mut order_book = OrderBookData::default();
-        // order_book.add_new_account(new_order);
 
         Ok(())
     }

@@ -168,7 +168,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  })
 
 
- xit("Take Order", async () => {
+ it("Take Order", async () => {
   try {
 
     const manager = PublicKey.findProgramAddressSync(
@@ -227,7 +227,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 })
 
 
-it("Cancel Order", async () => {
+xit("Cancel Order", async () => {
   try {
 
     const manager = PublicKey.findProgramAddressSync(

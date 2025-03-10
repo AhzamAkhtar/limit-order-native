@@ -129,7 +129,7 @@ impl TakeOrder {
                 taker_token_account_a.key,
                 manager.key,
                 &[],
-                1,
+                args.amount,
             )?,
             &[
                 token_mint_a.clone(),

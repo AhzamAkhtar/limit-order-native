@@ -25,7 +25,22 @@ impl TakeOrder {
         accounts: &[AccountInfo],
         args: TakeOrder,
     ) -> ProgramResult {
-        let [user, taker, btc_order_book, order_book_admin_pubkey, token_mint_a, token_mint_b, user_token_account_b, taker_token_account_a, taker_token_account_b, mediator_vault, token_program_id, associated_token_program, system_program] =
+
+        let [
+            user, // user create the order
+            taker, // user that accept a particular order
+            btc_order_book, // manager
+            order_book_admin_pubkey, // manager auth
+            token_mint_a, // token_mint that user want to trade for
+            token_mint_b, // token_mint that taker want to give in exchange
+            user_token_account_b, // user token_account for mint_b
+            taker_token_account_a, //taker token_account for mint_a
+            taker_token_account_b, // taker token_account for mint_b
+            mediator_vault,  //  vault where user token are stored
+            token_program_id,
+            associated_token_program,
+            system_program
+            ] =
             accounts
         else {
             return Err(ProgramError::NotEnoughAccountKeys);
@@ -105,7 +120,7 @@ impl TakeOrder {
             ],
         )?;
 
-        //transfer token from vault to taker
+        //transfer token from mediator_vault to taker
 
         invoke_signed(
             &token_instruction::transfer(

@@ -24,7 +24,18 @@ impl CreateOrder {
         accounts: &[AccountInfo],
         args: CreateOrder,
     ) -> ProgramResult {
-        let [user, btc_order_book, order_book_admin_pubkey, token_mint, user_token_account, mediator_vault, token_program_id, associated_token_program, system_program] =
+
+        let [
+            user, // user create the order
+            btc_order_book, //manager
+            order_book_admin_pubkey, // manager auth
+            token_mint, // token_mint that user want to trade for
+            user_token_account, // user token_account for token_mint
+            mediator_vault, // vault where user token are stored
+            token_program_id,
+            associated_token_program,
+            system_program
+            ] =
             accounts
         else {
             return Err(ProgramError::NotEnoughAccountKeys);
@@ -44,7 +55,7 @@ impl CreateOrder {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
-        // create user token_account for the given_token_account if needed
+        // create user token_account for the token_mint if needed
         if user_token_account.lamports() == 0 {
             invoke(
                 &associated_token_account_instruction::create_associated_token_account(

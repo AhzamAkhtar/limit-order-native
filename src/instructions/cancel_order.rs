@@ -19,13 +19,24 @@ impl CancelOrder {
         accounts: &[AccountInfo],
         args: CancelOrder,
     ) -> ProgramResult {
-        let [user, btc_order_book, order_book_admin_pubkey, token_mint_a, user_token_account_a, mediator_vault, token_program_id, associated_token_program, system_program] =
+        
+        let [
+            user, // user that create the order
+            btc_order_book, //manager
+            order_book_admin_pubkey, // manager auth
+            token_mint_a, // token_mint that user want to trade for
+            user_token_account_a, // user token_account for mint_a
+            mediator_vault, // vault where user token are stored
+            token_program_id,
+            associated_token_program,
+            system_program
+        ] =
             accounts
         else {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        let mut btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
+        let btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
 
         let btc_order_book_seed = &[
             b"btc_order_book",
@@ -39,7 +50,7 @@ impl CancelOrder {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
-        // send user back its fund
+        // send user back its fund from mediator_vault
         invoke_signed(
             &token_instruction::transfer(
                 token_program_id.key,

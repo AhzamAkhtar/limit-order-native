@@ -17,8 +17,17 @@ use crate::{error::ApplicationError, state::OrderBook};
 pub struct InitOrder {}
 
 impl InitOrder {
-    pub fn init_orderbook(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-        let [btc_order_book, fee_payer, system_program] = accounts else {
+    
+    pub fn init_orderbook(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo]
+        ) -> ProgramResult {
+
+        let [
+            btc_order_book,
+            fee_payer,
+            system_program
+            ] = accounts else {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 

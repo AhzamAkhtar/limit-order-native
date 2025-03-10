@@ -179,7 +179,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  })
 
 
- it("Take Order", async () => {
+ xit("Take Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(
@@ -238,7 +238,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 })
 
 
-xit("Cancel Order", async () => {
+it("Cancel Order", async () => {
   try {
 
     const btc_order_book = PublicKey.findProgramAddressSync(

@@ -1,11 +1,5 @@
 [
   {
-    "order_id": 1,
-    "side": "Buy",
-    "amount": 90,
-    "price": 60
-  },
-  {
     "order_id": 43,
     "side": "Buy",
     "amount": 100,
@@ -37,6 +31,18 @@
   },
   {
     "order_id": 37,
+    "side": "Sell",
+    "amount": 100,
+    "price": 60
+  },
+  {
+    "order_id": 55,
+    "side": "Sell",
+    "amount": 100,
+    "price": 60
+  },
+  {
+    "order_id": 122,
     "side": "Sell",
     "amount": 100,
     "price": 60

@@ -1,5 +1,4 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use serde::{Deserialize, Serialize};
 use solana_program::pubkey::Pubkey;
 
 // OrderBook act as a manager that stores information to control the vaults for smooth trade experience
@@ -10,13 +9,13 @@ pub struct OrderBook {
 }
 
 // OrderBookData is a off-chain order-book that store all trades information
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct OrderBookData {
     pub orders: Vec<OrderList>,
 }
 
 // OrderList describes each order that the user is making
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct OrderList {
     pub side: String,
     pub amount: u64,

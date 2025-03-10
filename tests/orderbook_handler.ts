@@ -19,7 +19,7 @@ export class OrderBookData {
         this.loadFromFile();
     }
 
-    // Load orders from file (if exists)
+    // Load orders from file 
     private loadFromFile() {
         if (fs.existsSync(this.filePath)) {
             const data = fs.readFileSync(this.filePath, "utf-8");
@@ -56,6 +56,7 @@ export class OrderBookData {
         }
     }
 
+    // fill in the partial trade
     public fill_partial_order(orderId : number, trade_amount : number) {
         const order = this.orders.find(order => order.order_id == orderId)
         if(order) {

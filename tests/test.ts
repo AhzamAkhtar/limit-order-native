@@ -79,33 +79,22 @@ const newMintToAta = async (connection, minter: Keypair): Promise<{ mint: Public
   }
 }
 
-const order_book_admin_pubkey = Keypair.generate();
+const manager_auth = Keypair.generate();
 const user_creating_order = Keypair.generate();
 const taker = Keypair.generate();
 
-function createValuesForInit() {
-  const btc_order_book = PublicKey.findProgramAddressSync(
+describe("Test_Limit_Order_Solana_Native_Program" , function (){
+
+  const manager = PublicKey.findProgramAddressSync(
     [
       Buffer.from('btc_order_book'),
-      order_book_admin_pubkey.publicKey.toBuffer(),
+      manager_auth.publicKey.toBuffer(),
     ],
     program_id
   )[0]; 
-  
-  console.log("order_book", btc_order_book)
-  console.log("admin", order_book_admin_pubkey.publicKey)
-  
-  return {
-    btc_order_book
-  }
-}
-
-describe("Test_Limit_Order_Solana_Native_Program" , function (){
-
-  const values = createValuesForInit()
 
     it("Airdrop", async () => {
-      await Promise.all([order_book_admin_pubkey.publicKey,values.btc_order_book , user_creating_order.publicKey].map(async (k) => {
+      await Promise.all([manager_auth.publicKey, manager , user_creating_order.publicKey].map(async (k) => {
           return await connection.requestAirdrop(k, 5_000_000_000)
       })).then(confirmTxs);
       console.log("✅ Airdrop Done")
@@ -115,11 +104,11 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
     it("Init Program Manager", async () => {
      try {
        const ix = buildInit({
-        btc_order_book : values.btc_order_book,
-        fee_payer : order_book_admin_pubkey.publicKey,
+        manager : manager,
+        fee_payer : manager_auth.publicKey,
         program_id : program_id,
        })
-       const init_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [order_book_admin_pubkey])
+       const init_transaction_signature = await sendAndConfirmTransaction(connection , new Transaction().add(ix) , [manager_auth])
        console.log("✅ init_transaction_signature",init_transaction_signature) 
      } catch(error) {
       console.log("Error from init_ins",error)
@@ -130,10 +119,10 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
   it("Create Order", async () => {
     try {
 
-      const btc_order_book = PublicKey.findProgramAddressSync(
+      const manager = PublicKey.findProgramAddressSync(
         [
           Buffer.from('btc_order_book'),
-          order_book_admin_pubkey.publicKey.toBuffer(),
+          manager_auth.publicKey.toBuffer(),
         ],
         program_id
       )[0]; 
@@ -145,7 +134,7 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
     
       const mediator_vault = getAssociatedTokenAddressSync(
         new_mint.mint,
-        btc_order_book,
+        manager,
         true
       );
 
@@ -159,8 +148,8 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       amount: new BN(100 * 10 ** 6),
       price: new BN(60 * 10 ** 6),
        user : user_creating_order.publicKey,
-       btc_order_book : btc_order_book,
-       order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
+       manager : manager,
+       manager_auth :  manager_auth.publicKey,
        token_mint : new_mint.mint,
        user_token_account : new_mint.ata,
        mediator_vault : mediator_vault,
@@ -182,10 +171,10 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
  xit("Take Order", async () => {
   try {
 
-    const btc_order_book = PublicKey.findProgramAddressSync(
+    const manager = PublicKey.findProgramAddressSync(
       [
         Buffer.from('btc_order_book'),
-        order_book_admin_pubkey.publicKey.toBuffer(),
+        manager_auth.publicKey.toBuffer(),
       ],
       program_id
     )[0]; 
@@ -215,8 +204,8 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
       price : new BN(0.1 * 10 ** 2),
       user : user_creating_order.publicKey,
       taker : taker.publicKey,
-      btc_order_book : btc_order_book,
-      order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
+      manager : manager,
+      manager_auth : manager_auth.publicKey,
       token_mint_a,
       token_mint_b : new_mint_b.mint,
       user_token_account_b : user_ata_for_token_b,
@@ -241,10 +230,10 @@ describe("Test_Limit_Order_Solana_Native_Program" , function (){
 it("Cancel Order", async () => {
   try {
 
-    const btc_order_book = PublicKey.findProgramAddressSync(
+    const manager = PublicKey.findProgramAddressSync(
       [
         Buffer.from('btc_order_book'),
-        order_book_admin_pubkey.publicKey.toBuffer(),
+         manager_auth.publicKey.toBuffer(),
       ],
       program_id
     )[0]; 
@@ -258,8 +247,8 @@ it("Cancel Order", async () => {
       id : new BN(1),
       amount : new BN(1 * 10 ** 6),
       user : user_creating_order.publicKey,
-      btc_order_book : btc_order_book,
-      order_book_admin_pubkey : order_book_admin_pubkey.publicKey,
+      manager : manager,
+      manager_auth : manager_auth.publicKey,
       token_mint_a,
       user_token_account_a : user_token_ata_a,
       mediator_vault : mediator_vault_account,

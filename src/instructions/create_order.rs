@@ -1,6 +1,6 @@
 use crate::{
     error::ApplicationError,
-    state::{OrderBook, OrderBookData, OrderList},
+    state::{Manager, OrderBookData, OrderList},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
@@ -26,9 +26,9 @@ impl CreateOrder {
     ) -> ProgramResult {
 
         let [
-            user, // user create the order
-            btc_order_book, //manager config_account
-            order_book_admin_pubkey, // manager auth
+            user, // user that's create the order
+            manager, //manager config_account
+            manager_auth, // manager auth
             token_mint, // token_mint that user want to trade for
             user_token_account, // user token_account for token_mint
             mediator_vault, // vault where user token are stored
@@ -41,17 +41,17 @@ impl CreateOrder {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        let btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
+        let manager_account_data = Manager::try_from_slice(&manager.data.borrow()[..])?;
 
-        let btc_order_book_seed = &[
+        let manager_account_seeds = &[
             b"btc_order_book",
-            order_book_admin_pubkey.key.as_ref(),
-            &[btc_order_book_data.bump],
+            manager_auth.key.as_ref(),
+            &[manager_account_data.bump],
         ];
 
-        let order_book_key = Pubkey::create_program_address(btc_order_book_seed, program_id)?;
+        let order_book_key = Pubkey::create_program_address(manager_account_seeds, program_id)?;
 
-        if order_book_key != *btc_order_book.key {
+        if order_book_key != *manager.key {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
@@ -78,14 +78,14 @@ impl CreateOrder {
         invoke(
             &associated_token_account_instruction::create_associated_token_account(
                 user.key,
-                btc_order_book.key,
+                manager.key,
                 token_mint.key,
                 token_program_id.key,
             ),
             &[
                 token_mint.clone(),
                 mediator_vault.clone(),
-                btc_order_book.clone(),
+                manager.clone(),
                 user.clone(),
                 system_program.clone(),
                 token_program_id.clone(),

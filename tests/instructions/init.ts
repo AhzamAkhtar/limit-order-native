@@ -23,7 +23,7 @@ const InitSchema = new Map([
 ]);
 
 export function buildInit(props : {
-    btc_order_book : PublicKey;
+    manager : PublicKey;
     fee_payer : PublicKey;
     program_id : PublicKey;
 }) {
@@ -34,7 +34,7 @@ export function buildInit(props : {
     return new TransactionInstruction({
         keys : [
             {
-                pubkey : props.btc_order_book,
+                pubkey : props.manager,
                 isSigner : false,
                 isWritable : true
             },

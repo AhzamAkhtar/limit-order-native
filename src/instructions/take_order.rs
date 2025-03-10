@@ -1,6 +1,6 @@
 use std::{io::Take, marker};
 
-use crate::{error::ApplicationError, state::OrderBook};
+use crate::{error::ApplicationError, state::Manager};
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::{
     account_info::AccountInfo,
@@ -27,10 +27,10 @@ impl TakeOrder {
     ) -> ProgramResult {
 
         let [
-            user, // user create the order
+            user, // user that's create the order
             taker, // user that accept a particular order
-            btc_order_book, // manager config_account
-            order_book_admin_pubkey, // manager auth
+            manager, // manager config_account
+            manager_auth, // manager auth
             token_mint_a, // token_mint that user want to trade for
             token_mint_b, // token_mint that taker want to give in exchange
             user_token_account_b, // user token_account for mint_b
@@ -46,17 +46,17 @@ impl TakeOrder {
             return Err(ProgramError::NotEnoughAccountKeys);
         };
 
-        let btc_order_book_data = OrderBook::try_from_slice(&btc_order_book.data.borrow()[..])?;
+        let manager_account_data = Manager::try_from_slice(&manager.data.borrow()[..])?;
 
-        let btc_order_book_seed = &[
+        let manager_account_seeds = &[
             b"btc_order_book",
-            order_book_admin_pubkey.key.as_ref(),
-            &[btc_order_book_data.bump],
+            manager_auth.key.as_ref(),
+            &[manager_account_data.bump],
         ];
 
-        let order_book_key = Pubkey::create_program_address(btc_order_book_seed, program_id)?;
+        let order_book_key = Pubkey::create_program_address(manager_account_seeds, program_id)?;
 
-        if order_book_key != *btc_order_book.key {
+        if order_book_key != *manager.key {
             return Err(ApplicationError::MismatchOrderbookKey.into());
         }
 
@@ -127,7 +127,7 @@ impl TakeOrder {
                 token_program_id.key,
                 mediator_vault.key,
                 taker_token_account_a.key,
-                btc_order_book.key,
+                manager.key,
                 &[],
                 1,
             )?,
@@ -135,12 +135,12 @@ impl TakeOrder {
                 token_mint_a.clone(),
                 mediator_vault.clone(),
                 taker_token_account_a.clone(),
-                order_book_admin_pubkey.clone(),
-                btc_order_book.clone(),
+                manager_auth.clone(),
+                manager.clone(),
                 taker.clone(),
                 token_program_id.clone(),
             ],
-            &[btc_order_book_seed],
+            &[manager_account_seeds],
         )?;
 
         Ok(())

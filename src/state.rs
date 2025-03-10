@@ -1,9 +1,9 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
-// OrderBook act as a manager that stores information to control the vaults for smooth trade experience
+// Manager act as a manager that stores information to control the vaults for smooth trade experience
 #[derive(BorshDeserialize, BorshSerialize, Debug)]
-pub struct OrderBook {
+pub struct Manager {
     pub authority: Pubkey,
     pub bump: u8,
 }

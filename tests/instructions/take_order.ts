@@ -31,8 +31,8 @@ class TakeOrder extends Assignable {
     price : BN,
     user : PublicKey;
     taker : PublicKey;
-    btc_order_book : PublicKey;
-    order_book_admin_pubkey : PublicKey;
+    manager : PublicKey;
+    manager_auth : PublicKey;
     token_mint_a : PublicKey;
     token_mint_b : PublicKey;
     user_token_account_b : PublicKey;
@@ -61,12 +61,12 @@ class TakeOrder extends Assignable {
             isWritable : true
         },
             {
-                pubkey : props.btc_order_book,
+                pubkey : props.manager,
                 isSigner : false,
                 isWritable : true
             },
             {
-              pubkey : props.order_book_admin_pubkey,
+              pubkey : props.manager_auth,
               isSigner : false,
               isWritable : true
           },

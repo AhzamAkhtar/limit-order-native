@@ -1,10 +1,10 @@
 use solana_program::program_error::ProgramError;
 use thiserror::Error;
 
-#[derive(Debug,Error)]
+#[derive(Debug, Error)]
 pub enum ApplicationError {
     #[error("OrderBook Key Mismatch")]
-    MismatchOrderbookKey
+    MismatchOrderbookKey,
 }
 
 impl From<ApplicationError> for ProgramError {
@@ -12,4 +12,3 @@ impl From<ApplicationError> for ProgramError {
         ProgramError::Custom(value as u32)
     }
 }
-
